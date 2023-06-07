@@ -52,7 +52,8 @@ static int g_epoll_max_events = 10;
         }
 
         initWakeUpFdEvent();
-
+        initTimer();
+        
         INFOLOG("succ create event loop in thread %d", m_thread_id);
         t_current_eventloop = this;
     }
@@ -63,8 +64,22 @@ static int g_epoll_max_events = 10;
             delete m_wake_up_fd_event;
             m_wake_up_fd_event = NULL;
         }
-
+        if(m_timer) {
+            delete m_timer;
+            m_timer = NULL;
+        }
     }
+
+    void Eventloop::initTimer() {
+        m_timer = new Timer();
+        addEpollEvent(m_timer);
+    }
+
+    void Eventloop::addTimerEvent(TimerEvent::s_ptr event){
+        m_timer->addTimerEvent(event);
+    }
+
+
     void Eventloop::initWakeUpFdEvent() {
         m_wakeup_fd = eventfd(0, EFD_NONBLOCK);
         if(m_wakeup_fd <= 0) {
@@ -116,15 +131,17 @@ static int g_epoll_max_events = 10;
                     epoll_event trigger_event = result_events[i];
                     Fdevent*  fd_event = static_cast<Fdevent*> (trigger_event.data.ptr);
                     if(fd_event == NULL) {
+                        ERRORLOG("fd_event = NULL, continue");
                         continue;
                     }
                     if(trigger_event.events  & EPOLLIN) { //读事件
                         DEBUGLOG("fd %d trigger EPOLLIN event", fd_event->getFd())
                         addTask(fd_event->handler(Fdevent::IN_EVENT));
                     }
-                    if(trigger_event.events  & EPOLLOUT) { //读事件
-                        addTask(fd_event->handler(Fdevent::OUT_EVENT));
+                    if(trigger_event.events  & EPOLLOUT) { //写事件
+       
                         DEBUGLOG("fd %d trigger EPOLLOUT event", fd_event->getFd())
+                        addTask(fd_event->handler(Fdevent::OUT_EVENT));
                     }
                 }
             }
@@ -133,6 +150,7 @@ static int g_epoll_max_events = 10;
     }
 
     void Eventloop::wakeup() {
+        INFOLOG("WAKE UP");
         m_wake_up_fd_event->wakeup();
     }
     
@@ -160,6 +178,8 @@ static int g_epoll_max_events = 10;
         if(isInLoopThread()) {
             DELETE_TO_EPOLL();
         } else {
+
+
             auto cb = [this, event] () {
                 DELETE_TO_EPOLL();
             };
@@ -171,6 +191,8 @@ static int g_epoll_max_events = 10;
         ScopeMutext<Mutex> lock(m_mutex);
         m_pending_tasks.push(cb);
         lock.unlock();
+
+
         if(is_wake_up) {
             wakeup();
         }

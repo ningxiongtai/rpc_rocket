@@ -7,6 +7,7 @@
 #include <queue>
 #include "rocket/net/fd_event.h"
 #include "rocket/net/wakeup_fd_event.h"
+#include "rocket/net/timer.h"
 namespace rocket {
 
 class Eventloop
@@ -21,6 +22,8 @@ public:
 
     void wakeup();
 
+
+
     void stop();
     void addEpollEvent(Fdevent* event);
     void deleteEpollEvent(Fdevent* event);
@@ -28,6 +31,10 @@ public:
     bool isInLoopThread() ;
 
     void addTask(std::function<void()> cd, bool is_wake_up = false) ;
+
+    void initTimer();
+
+   void addTimerEvent(TimerEvent::s_ptr event);
 private:
     void dealWakeup();
     void initWakeUpFdEvent();
@@ -48,6 +55,9 @@ private:
   std::queue<std::function<void()>> m_pending_tasks;
   
   Mutex m_mutex;
+
+  Timer * m_timer {NULL};
+
 
 };
 

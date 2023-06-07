@@ -4,13 +4,17 @@
 namespace rocket
 {
 
-Fdevent::Fdevent(int fd) : m_mid(fd) {
+Fdevent::Fdevent(int fd) : m_fd(fd) {
     memset(&m_listen_events, 0, sizeof(m_listen_events));
 }
 
 Fdevent::~Fdevent() {
 
 
+}
+
+Fdevent::Fdevent() {
+    memset(&m_listen_events, 0, sizeof(m_listen_events));
 }
 
 std::function<void()> Fdevent::handler(FdTriggerEvent event) {

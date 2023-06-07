@@ -17,7 +17,7 @@ public:
     };
 
     Fdevent(int fd);
-
+    Fdevent();
     ~Fdevent();
 
     std::function<void()> handler(FdTriggerEvent event_type);
@@ -25,14 +25,14 @@ public:
     void listen(FdTriggerEvent event_type, std::function<void()> callback);
     
     int getFd() {
-        return m_mid;
+        return m_fd;
     }
     
     epoll_event getEpollEvent() {
         return m_listen_events;
     }
 protected:
-    int m_mid {-1};
+    int m_fd {-1};
     
     epoll_event m_listen_events;
 
