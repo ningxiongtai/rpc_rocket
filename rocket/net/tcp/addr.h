@@ -27,7 +27,7 @@ private:
 class IPNetAddr : public NetAddr {
 public:
     IPNetAddr(const std::string& ip , uint16_t port);
-    IPNetAddr(const std::string& ip);
+    IPNetAddr(const std::string& addr);
     IPNetAddr(sockaddr_in addr);
     sockaddr* getSockAddr();
     socklen_t getSockLen();

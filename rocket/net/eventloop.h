@@ -37,6 +37,10 @@ public:
     void initTimer();
 
    void addTimerEvent(TimerEvent::s_ptr event);
+
+public:
+  static Eventloop* GetCurrentEventLoop();
+
 private:
     void dealWakeup();
     void initWakeUpFdEvent();

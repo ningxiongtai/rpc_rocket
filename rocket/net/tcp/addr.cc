@@ -15,9 +15,12 @@ namespace rocket {
         size_t i =  addr.find_first_of(":");
         if(i == addr.npos) {
             ERRORLOG("invalid ipv4 addr %s", addr.c_str());
+            return ;
         }
         m_ip = addr.substr(0, i);
         m_port = std::atoi(addr.substr(i + 1, addr.size() - i - 1).c_str());
+        
+        memset(&m_addr, 0, sizeof(m_addr));
         m_addr.sin_family = AF_INET;
         m_addr.sin_addr.s_addr = inet_addr(m_ip.c_str()); // 点分10十进制转换为网络IP
         m_addr.sin_port = htons(m_port); 
@@ -42,7 +45,20 @@ namespace rocket {
         re = m_ip + ":" + std::to_string(m_port);
         return re;
     }
+    bool IPNetAddr::checkValid() {
+    if (m_ip.empty()) {
+        return false;  
+    }
 
+    if (m_port < 0 || m_port > 65536) {
+        return false;
+    }
+
+    if (inet_addr(m_ip.c_str()) == INADDR_NONE) {
+        return false;
+    }
+    return true;
+    }
 
 
 }
