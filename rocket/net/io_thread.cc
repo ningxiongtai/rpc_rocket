@@ -7,11 +7,13 @@ namespace rocket {
   IOThread::IOThread() {
     int rt = sem_init(&m_init_semaphore, 0, 0);
     assert(rt == 0);
+    rt = sem_init(&m_start_semaphore, 0, 0);
+    assert(rt == 0);
     pthread_create(&m_thread, NULL,&IOThread::Main, this);
     //wait, 一直等到新线程执行完Main函数的前置
     sem_wait(&m_init_semaphore);
     
-    DEBUGLOG("IOThread %d create success", m_thread_id);
+    DEBUGLOG("IOThread [%d] create success", m_thread_id);
   }
 
   IOThread::~IOThread() {

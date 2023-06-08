@@ -1,6 +1,8 @@
 #include "rocket/net/fd_event.h"
 #include "rocket/common/log.h"
 #include <string.h>
+
+
 namespace rocket
 {
 
@@ -31,7 +33,7 @@ void Fdevent::listen(FdTriggerEvent event_type, std::function<void()> callback) 
         m_read_callback = callback; 
 
     } else {
-        m_listen_events.events = EPOLLOUT;
+        m_listen_events.events |= EPOLLOUT;
         m_write_callback = callback;
     } 
     m_listen_events.data.ptr = this;

@@ -6,7 +6,6 @@
 #include "rocket/net/io_thread.h"
 
 
-
 namespace rocket {
 
 class IOThreadGroup {
