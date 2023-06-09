@@ -1,7 +1,7 @@
 #include "rocket/net/fd_event.h"
 #include "rocket/common/log.h"
 #include <string.h>
-
+#include <fcntl.h>
 
 namespace rocket
 {
@@ -37,6 +37,25 @@ void Fdevent::listen(FdTriggerEvent event_type, std::function<void()> callback) 
         m_write_callback = callback;
     } 
     m_listen_events.data.ptr = this;
+}
+
+void Fdevent::cancle(FdTriggerEvent event_type) {
+  if (event_type == FdTriggerEvent::IN_EVENT) {
+    m_listen_events.events &= (~EPOLLIN);
+  } else {
+    m_listen_events.events &= (~EPOLLOUT);
+  }
+}
+
+
+void Fdevent::setNonBlock() {
+
+  int flag = fcntl(m_fd, F_GETFL, 0);
+  if (flag & O_NONBLOCK) {
+    return;
+  }
+
+  fcntl(m_fd, F_SETFL, flag | O_NONBLOCK);
 }
 
 

@@ -1,23 +1,27 @@
-#include "rocket/common/log.h"
-#include "rocket/net/eventloop.h"
+
 #include <sys/socket.h>
 #include <sys/eventfd.h>
 #include <sys/epoll.h>
 #include <string.h>
 #include "rocket/common/util.h"
 #include "rocket/common/mutex.h"
+#include "rocket/common/log.h"
+#include "rocket/net/eventloop.h"
+#include "rocket/net/fd_event_group.h"
 
 #define ADD_TO_EPOLL() \
             auto it = m_listen_fds.find(event->getFd()); \
             int op = EPOLL_CTL_ADD;\
             if(it != m_listen_fds.end()) {\
-                op = EPOLL_CTL_ADD;\
+                op = EPOLL_CTL_MOD;\
             }\
             epoll_event tmp = event->getEpollEvent();\
+            INFOLOG("epoll_event.events = %d", (int)tmp.events); \
             int rt = epoll_ctl(m_epoll_fd, op, event->getFd(), &tmp); \
             if(rt == -1) {\
-                ERRORLOG("failed epoll_ctl when add fd %d, errno = %d", errno, strerror(errno) );\
+                ERRORLOG("failed epoll_ctl when add fd, errno=%d, error=%s", errno, strerror(errno)); \
             }\
+            m_listen_fds.insert(event->getFd()); \
             DEBUGLOG("add event success ,fd [%d]", event->getFd());\
 
 #define DELETE_TO_EPOLL() \
@@ -29,8 +33,9 @@
             epoll_event tmp = event->getEpollEvent();\
             int rt = epoll_ctl(m_epoll_fd, op, event->getFd(), &tmp); \
             if(rt == -1) {\
-                ERRORLOG("failed epoll_ctl when add fd %d, errno = %d", errno, strerror(errno) );\
+                ERRORLOG("failed epoll_ctl when add fd, errno=%d, error=%s", errno, strerror(errno)); \
             }\
+            m_listen_fds.erase(event->getFd()); \
             DEBUGLOG("delete event success ,fd [%d]", event->getFd());\
 
 namespace rocket {
@@ -103,7 +108,7 @@ static int g_epoll_max_events = 10;
     void Eventloop::loop() {
         while (!m_stop_flag)
         {   
-            ScopeMutext<Mutex> lock(m_mutex);
+            ScopeMutex<Mutex> lock(m_mutex);
             std::queue<std::function<void()>> tmp_tasks ;
 
             m_pending_tasks.swap(tmp_tasks);
@@ -134,6 +139,7 @@ static int g_epoll_max_events = 10;
                         ERRORLOG("fd_event = NULL, continue");
                         continue;
                     }
+
                     if(trigger_event.events  & EPOLLIN) { //读事件
                         DEBUGLOG("fd %d trigger EPOLLIN event", fd_event->getFd())
                         addTask(fd_event->handler(Fdevent::IN_EVENT));
@@ -163,23 +169,20 @@ static int g_epoll_max_events = 10;
     }
 
     void Eventloop::addEpollEvent(Fdevent* event) {
-        if(isInLoopThread()) {
+        if (isInLoopThread()) {
             ADD_TO_EPOLL();
-            }else {
-                auto cb = [this, event]() {
-                    ADD_TO_EPOLL();
-                };
-                addTask(cb, true);
-            }
+        } else {
+            auto cb = [this, event]() {
+            ADD_TO_EPOLL();
+            };
+            addTask(cb, true);
         }
-    
-
+    }
+        
     void Eventloop::deleteEpollEvent(Fdevent* event) {
         if(isInLoopThread()) {
             DELETE_TO_EPOLL();
         } else {
-
-
             auto cb = [this, event] () {
                 DELETE_TO_EPOLL();
             };
@@ -188,7 +191,7 @@ static int g_epoll_max_events = 10;
     }
     
     void Eventloop::addTask(std::function<void()> cb, bool is_wake_up  /*false*/) {
-        ScopeMutext<Mutex> lock(m_mutex);
+        ScopeMutex<Mutex> lock(m_mutex);
         m_pending_tasks.push(cb);
         lock.unlock();
 

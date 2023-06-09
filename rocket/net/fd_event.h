@@ -20,10 +20,13 @@ public:
     Fdevent();
     ~Fdevent();
 
+    void setNonBlock();
+
     std::function<void()> handler(FdTriggerEvent event_type);
 
     void listen(FdTriggerEvent event_type, std::function<void()> callback);
     
+    void cancle(FdTriggerEvent event_type);
     int getFd() {
         return m_fd;
     }
