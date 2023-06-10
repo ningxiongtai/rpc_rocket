@@ -106,6 +106,7 @@ static int g_epoll_max_events = 10;
     }
 
     void Eventloop::loop() {
+        m_is_looping = true;
         while (!m_stop_flag)
         {   
             ScopeMutex<Mutex> lock(m_mutex);
@@ -212,4 +213,7 @@ static int g_epoll_max_events = 10;
     return t_current_eventloop;
     }
 
+    bool Eventloop::isLooping() {
+        return m_is_looping;
+    }
 }

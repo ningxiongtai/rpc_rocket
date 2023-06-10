@@ -34,6 +34,7 @@ public:
 
     void addTask(std::function<void()> cd, bool is_wake_up = false) ;
 
+    bool isLooping();
     void initTimer();
 
    void addTimerEvent(TimerEvent::s_ptr event);
@@ -64,7 +65,7 @@ private:
 
   Timer * m_timer {NULL};
 
-
+  bool m_is_looping {false};
 };
 
 
