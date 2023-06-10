@@ -5,8 +5,8 @@
 #include "rocket/net/tcp/addr.h"
 #include "rocket/net/tcp/tcp_buffer.h"
 #include "rocket/net/io_thread.h"
-#include "rocket/net/abstact_protocol.h"
-#include "rocket/net/abstract_coder.h"
+#include "rocket/net/coder/abstract_coder.h"
+#include "rocket/net/coder/abstract_protocol.h"
 #include <queue>
 
 namespace rocket {
@@ -71,7 +71,7 @@ class TcpConnection {
 
   Fdevent* m_fd_event {NULL};
 
-  AbstractCoder* m_coder {NULL};
+  AbstracstCoder* m_coder {NULL};
 
   TcpState m_state;
 
