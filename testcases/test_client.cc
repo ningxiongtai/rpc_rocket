@@ -12,6 +12,8 @@
 #include "rocket/common/config.h"
 #include "rocket/net/tcp/tcp_client.h"
 #include "rocket/net/tcp/addr.h"
+#include "rocket/net/string_coder.h"
+#include "rocket/net/abstact_protocol.h"
 void test_connect() {
 
   // 调用 conenct 连接 server
@@ -51,7 +53,23 @@ void test_tcp_client() {
 
   rocket::IPNetAddr::s_ptr addr = std::make_shared<rocket::IPNetAddr>("127.0.0.1", 12346);
   rocket::TcpClient client(addr);
-  client.connect([addr]() {
+client.connect([addr, &client]() {
+    DEBUGLOG("conenct to [%s] success", addr->toString().c_str());
+    std::shared_ptr<rocket::StringProtocol> message = std::make_shared<rocket::StringProtocol>();
+    message->info = "hello rocket";
+    message->setReqId ("123456");
+    client.writeMessage(message, [](rocket::AbstractProtocol::s_ptr msg_ptr) {
+      DEBUGLOG("send message success");
+    });
+
+    client.readMessage("123456", [](rocket::AbstractProtocol::s_ptr msg_ptr) {
+      std::shared_ptr<rocket::StringProtocol> message = std::dynamic_pointer_cast<rocket::StringProtocol>(msg_ptr);
+      DEBUGLOG("req_id[%s], get response %s", message->getReqId().c_str(), message->info.c_str());
+    });
+
+    client.writeMessage(message, [](rocket::AbstractProtocol::s_ptr msg_ptr) {
+      DEBUGLOG("send message 22222 success");
+    });
     DEBUGLOG("conenct to [%s] success", addr->toString().c_str());
   });
 }
