@@ -10,8 +10,6 @@ struct AbstractProtocol : public std::enable_shared_from_this<AbstractProtocol> 
  public:
   typedef std::shared_ptr<AbstractProtocol> s_ptr;
 
-
-
   virtual ~AbstractProtocol() {}
 
  public:

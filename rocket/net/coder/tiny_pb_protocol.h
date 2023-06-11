@@ -27,6 +27,7 @@ public:
     std::string m_err_info;
     std::string m_pb_data;
     int32_t m_check_sum {0};
+    
     bool parse_success {false};
 
 
