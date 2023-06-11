@@ -163,6 +163,7 @@ static int g_epoll_max_events = 10;
     
     void Eventloop::stop() {
         m_stop_flag = true;
+        wakeup();
     }
 
     void Eventloop::dealWakeup() {
