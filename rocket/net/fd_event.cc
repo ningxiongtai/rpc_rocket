@@ -22,20 +22,31 @@ Fdevent::Fdevent() {
 std::function<void()> Fdevent::handler(FdTriggerEvent event) {
     if(event == FdTriggerEvent::IN_EVENT) {
         return m_read_callback;
-    }else {
+    }else if(event == FdTriggerEvent::OUT_EVENT){
         return m_write_callback;
+    }  else if (event == FdTriggerEvent::ERROR_EVENT) {
+      return m_error_callback;
     }
+    return nullptr;
+
 }
 
-void Fdevent::listen(FdTriggerEvent event_type, std::function<void()> callback) {
+void Fdevent::listen(FdTriggerEvent event_type, std::function<void()> callback, std::function<void()> error_callback /*= nullptr*/) {
     if(event_type == FdTriggerEvent::IN_EVENT) {
         m_listen_events.events |= EPOLLIN;
         m_read_callback = callback; 
-
+        
     } else {
         m_listen_events.events |= EPOLLOUT;
         m_write_callback = callback;
     } 
+
+    if(m_error_callback == nullptr) {
+      m_error_callback = callback;
+    } else {
+      m_error_callback = nullptr;
+    }
+
     m_listen_events.data.ptr = this;
 }
 
