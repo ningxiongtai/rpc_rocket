@@ -11,7 +11,7 @@ FdEventGroup* FdEventGroup::GetFdEventGroup() {
   if (g_fd_event_group != NULL) {
     return g_fd_event_group;
   }
-
+ 
   g_fd_event_group = new FdEventGroup(128);
   return g_fd_event_group;
 }

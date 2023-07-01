@@ -66,7 +66,7 @@ void TinyPBCoder::decode(std::vector<AbstractProtocol::s_ptr>& out_messages, Tcp
 
     if (parse_success) {
       buffer->moveReadIndex(end_index - start_index + 1);
-      std::shared_ptr<TinyPBProtocol> message = std::make_shared<TinyPBProtocol>(); 
+      std::shared_ptr<TinyPBProtocol> message = std::make_shared<TinyPBProtocol>(); //协议对象
       message->m_pk_len = pk_len;
 
       int msg_id_len_index = start_index + sizeof(char) + sizeof(message->m_pk_len);

@@ -24,10 +24,10 @@ public:
 
     void wakeup();
 
-
-
     void stop();
+    
     void addEpollEvent(Fdevent* event);
+
     void deleteEpollEvent(Fdevent* event);
     //判断当前是否还有线程
     bool isInLoopThread() ;
@@ -35,9 +35,10 @@ public:
     void addTask(std::function<void()> cd, bool is_wake_up = false) ;
 
     bool isLooping();
+
     void initTimer();
 
-   void addTimerEvent(TimerEvent::s_ptr event);
+    void addTimerEvent(TimerEvent::s_ptr event);
 
 public:
   static Eventloop* GetCurrentEventLoop();
@@ -64,7 +65,7 @@ private:
   Mutex m_mutex;
 
   Timer * m_timer {NULL};
-
+  //起始标志
   bool m_is_looping {false};
 };
 

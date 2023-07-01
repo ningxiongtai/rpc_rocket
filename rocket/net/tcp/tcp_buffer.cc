@@ -6,15 +6,15 @@ namespace rocket {
     TcpBuffer::TcpBuffer(int size) : m_size (size){
         m_buffer.resize(size);
     }
+
     TcpBuffer::~TcpBuffer() {
 
     }
-    
-
-
+  
     int TcpBuffer::readAble() {
         return m_write_index - m_read_index;
     }
+
     int TcpBuffer::writeAble() {
         return m_buffer.size() - m_write_index;
     }
@@ -22,6 +22,7 @@ namespace rocket {
     int TcpBuffer::readIndex() {
         return m_read_index;
     }
+
     int TcpBuffer::writeIndex() {
         return m_write_index;
     }

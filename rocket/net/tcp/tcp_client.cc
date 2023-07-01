@@ -8,6 +8,7 @@
 #include "rocket/net/tcp/tcp_client.h"
 #include "rocket/net/tcp/addr.h"
 #include "rocket/common/error_code.h"
+
 namespace rocket {
 
 TcpClient::TcpClient(NetAddr::s_ptr peer_addr) : m_peer_addr(peer_addr) {
@@ -24,7 +25,7 @@ TcpClient::TcpClient(NetAddr::s_ptr peer_addr) : m_peer_addr(peer_addr) {
 
   m_connection = std::make_shared<TcpConnection>(m_event_loop, m_fd, 128, peer_addr, nullptr, TcpConnectionByClient);
   m_connection->setConnectionType(TcpConnectionByClient);
-
+ 
 }
 
 TcpClient::~TcpClient() {
@@ -48,7 +49,7 @@ void TcpClient::connect(std::function<void()> done) {
   } else if (rt == -1) {
     if (errno == EINPROGRESS) {
       // epoll 监听可写事件，然后判断错误码
-        m_fd_event->listen(Fdevent::OUT_EVENT, 
+      m_fd_event->listen(Fdevent::OUT_EVENT, 
         [this, done]() {
           int rt = ::connect(m_fd, m_peer_addr->getSockAddr(), m_peer_addr->getSockLen());
           if ((rt < 0 && errno == EISCONN) || (rt == 0)) {
@@ -74,8 +75,8 @@ void TcpClient::connect(std::function<void()> done) {
           // 如果连接完成，才会执行回调函数
           if (done) {
             done();
-            }
           }
+        }
       );
       m_event_loop->addEpollEvent(m_fd_event);
 
@@ -89,11 +90,11 @@ void TcpClient::connect(std::function<void()> done) {
       if (done) {
         done();
       }
-    
     }
   }
 
 }
+
 
 void TcpClient::stop() {
   if (m_event_loop->isLooping()) {
@@ -101,12 +102,11 @@ void TcpClient::stop() {
   }
 }
 
-
 // 异步的发送 message
 // 如果发送 message 成功，会调用 done 函数， 函数的入参就是 message 对象 
 void TcpClient::writeMessage(AbstractProtocol::s_ptr message, std::function<void(AbstractProtocol::s_ptr)> done) {
-  //1.把message加入Connection的buffer，done 写入
-  //2.启动connection可写事件
+  // 1. 把 message 对象写入到 Connection 的 buffer, done 也写入
+  // 2. 启动 connection 可写事件
   m_connection->pushSendMessage(message, done);
   m_connection->listenWrite();
 
@@ -121,7 +121,6 @@ void TcpClient::readMessage(const std::string& msg_id, std::function<void(Abstra
   m_connection->pushReadMessage(msg_id, done);
   m_connection->listenRead();
 }
-
 
 int TcpClient::getConnectErrorCode() {
   return m_connect_error_code;
@@ -155,6 +154,8 @@ void TcpClient::initLocalAddr() {
 }
 
 
-
+void TcpClient::addTimerEvent(TimerEvent::s_ptr timer_event) {
+  m_event_loop->addTimerEvent(timer_event);
+}
 
 }

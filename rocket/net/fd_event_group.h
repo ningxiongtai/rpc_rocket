@@ -10,10 +10,11 @@ namespace rocket {
 class FdEventGroup {
 
  public:
-
+ 
   FdEventGroup(int size);
 
   ~FdEventGroup();
+
   Fdevent* getFdEvent(int fd);
 
  public:

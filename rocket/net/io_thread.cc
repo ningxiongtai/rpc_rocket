@@ -30,7 +30,7 @@ namespace rocket {
   }
 
 
-  void* IOThread::Main(void* arg) {
+  void* IOThread:: Main(void* arg) {
     IOThread* thread = static_cast<IOThread*> (arg); //静态转换
 
     thread->m_event_loop = new Eventloop();

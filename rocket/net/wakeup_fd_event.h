@@ -13,8 +13,7 @@ public:
 
     ~WakeUpFdEvent();
 
-
-    void wakeup();
+    void wakeup(); 
 private:
 
 };

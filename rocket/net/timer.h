@@ -25,6 +25,7 @@ class Timer : public Fdevent {
   void resetArriveTime();
 
  private:
+  //使用multimap，key为到达时间，value为事件
   std::multimap<int64_t, TimerEvent::s_ptr> m_pending_events;
   Mutex m_mutex;
 

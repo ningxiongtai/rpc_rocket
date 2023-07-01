@@ -23,7 +23,7 @@ enum TcpState {
 
 enum TcpConnectionType {
   TcpConnectionByServer = 1,  // 作为服务端使用，代表跟对端客户端的连接
-  TcpConnectionByClient = 2 // 作为客户端使用，代表跟对赌服务端的连接
+  TcpConnectionByClient = 2 // 作为客户端使用，代表跟对端服务端的连接
 };
 
 class TcpConnection {
@@ -33,6 +33,7 @@ class TcpConnection {
   
  public:
   TcpConnection(Eventloop* event_loop, int fd, int buffer_size, NetAddr::s_ptr peer_addr, NetAddr::s_ptr local_addr, TcpConnectionType type = TcpConnectionByServer);
+  
   ~TcpConnection();
 
   void onRead();

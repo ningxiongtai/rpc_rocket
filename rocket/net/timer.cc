@@ -1,4 +1,4 @@
-#include <sys/timerfd.h>
+ #include <sys/timerfd.h>
 #include <string.h>
 #include "rocket/net/timer.h"
 #include "rocket/common/log.h"
@@ -9,7 +9,7 @@ namespace rocket {
 
 Timer::Timer() : Fdevent() {
 
-
+  //创建fd
   m_fd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
   DEBUGLOG("timer fd=%d", m_fd);
 
@@ -33,8 +33,9 @@ void Timer::onTimer() {
 
   // 执行定时任务
   int64_t now = getNowMs();
-
+  //临时数组存储
   std::vector<TimerEvent::s_ptr> tmps;
+  //需要执行的任务
   std::vector<std::pair<int64_t, std::function<void()>>> tasks;
 
   ScopeMutex<Mutex> lock(m_mutex);

@@ -43,6 +43,7 @@ void TcpConnection::onRead() {
     }
     int read_count = m_in_buffer->writeAble();
     int write_index = m_in_buffer->writeIndex(); 
+    
     int rt = read(m_fd, &(m_in_buffer->m_buffer[write_index]), read_count);
     DEBUGLOG("success read %d bytes from addr[%s], client fd[%d]", rt, m_peer_addr->toString().c_str(), m_fd);
     if (rt > 0) {

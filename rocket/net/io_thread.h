@@ -14,8 +14,7 @@ public:
     IOThread();
     ~IOThread();
 
-    Eventloop* getEventloop();
-
+    Eventloop* getEventloop(); 
     void start();
     void join();
 public:
@@ -23,7 +22,7 @@ public:
 
 private:
     pid_t m_thread_id {0}; //线程号
-    pthread_t m_thread {0};
+    pthread_t m_thread {0}; //线程句柄
 
 
     Eventloop* m_event_loop {NULL}; //线程IO的eventloop对象

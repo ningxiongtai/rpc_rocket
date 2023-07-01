@@ -19,16 +19,16 @@ Fdevent::Fdevent() {
     memset(&m_listen_events, 0, sizeof(m_listen_events));
 }
 
-std::function<void()> Fdevent::handler(FdTriggerEvent event) {
-    if(event == FdTriggerEvent::IN_EVENT) {
-        return m_read_callback;
-    }else if(event == FdTriggerEvent::OUT_EVENT){
-        return m_write_callback;
-    }  else if (event == FdTriggerEvent::ERROR_EVENT) {
-      return m_error_callback;
-    }
-    return nullptr;
 
+std::function<void()> Fdevent::handler(FdTriggerEvent event) {
+  if (event == FdTriggerEvent::IN_EVENT) {
+    return m_read_callback;
+  } else if (event == FdTriggerEvent::OUT_EVENT) {
+    return m_write_callback;
+  } else if (event == FdTriggerEvent::ERROR_EVENT) {
+    return m_error_callback;
+  }
+  return nullptr;
 }
 
 void Fdevent::listen(FdTriggerEvent event_type, std::function<void()> callback, std::function<void()> error_callback /*= nullptr*/) {
@@ -42,7 +42,7 @@ void Fdevent::listen(FdTriggerEvent event_type, std::function<void()> callback, 
     } 
 
     if(m_error_callback == nullptr) {
-      m_error_callback = callback;
+      m_error_callback = error_callback;
     } else {
       m_error_callback = nullptr;
     }

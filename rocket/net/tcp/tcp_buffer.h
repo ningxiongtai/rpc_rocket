@@ -15,6 +15,7 @@ class TcpBuffer {
   TcpBuffer(int size);
 
   ~TcpBuffer();
+  
   // 返回可读字节数
   int readAble();
   // 返回可写的字节数

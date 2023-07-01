@@ -8,6 +8,7 @@
 #include "rocket/common/log.h"
 #include "rocket/common/msg_util.h"
 #include "rocket/common/error_code.h"
+#include "rocket/net/timer_event.h"
 namespace rocket {
 
 RpcChannel::RpcChannel(NetAddr::s_ptr peer_addr) : m_peer_addr(peer_addr) {
@@ -16,7 +17,7 @@ RpcChannel::RpcChannel(NetAddr::s_ptr peer_addr) : m_peer_addr(peer_addr) {
 }
 
 RpcChannel::~RpcChannel() {
-
+ 
   INFOLOG("~RpcChannel");
 }
 
@@ -32,12 +33,14 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
     ERRORLOG("failed callmethod, RpcController convert error");
     return;
   }
+
   if (my_controller->GetMsgId().empty()) {
     req_protocol->m_msg_id = MsgIDUtil::GenMsgID();
     my_controller->SetMsgId(req_protocol->m_msg_id);
   } else {
     req_protocol->m_msg_id = my_controller->GetMsgId();
   }
+
   req_protocol->m_method_name = method->full_name();
   INFOLOG("%s | call method name [%s]", req_protocol->m_msg_id.c_str(), req_protocol->m_method_name.c_str());
 
@@ -57,10 +60,20 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
     return;
   }
 
-
+  
   s_ptr channel = shared_from_this(); 
 
+  m_timer_event = std::make_shared<TimerEvent>(my_controller->GetTimeout(), false, [my_controller, channel]() mutable {
+    my_controller->StartCancel();
+    my_controller->SetError(ERROR_RPC_CALL_TIMEOUT, "rpc call timeout " + std::to_string(my_controller->GetTimeout()));
 
+    if (channel->getClosure()) {
+      channel->getClosure()->Run();
+    }
+    channel.reset();
+  });
+
+  m_client->addTimerEvent(m_timer_event);
   m_client->connect([req_protocol, channel]() mutable {
       RpcController* my_controller = dynamic_cast<RpcController*>(channel->getController());
 
@@ -80,11 +93,11 @@ void RpcChannel::CallMethod(const google::protobuf::MethodDescriptor* method,
     channel->getTcpClient()->writeMessage(req_protocol, [req_protocol, channel, my_controller](AbstractProtocol::s_ptr) mutable {
       INFOLOG("%s | send rpc request success. call method name[%s], peer addr[%s], local addr[%s]", 
         req_protocol->m_msg_id.c_str(), req_protocol->m_method_name.c_str(),
-        channel->getTcpClient()->getPeerAddr()->toString().c_str(), channel->getTcpClient()->getLocalAddr()->toString().c_str());
+        channel->getTcpClient()->getPeerAddr()->toString().c_str(), 
+        channel->getTcpClient()->getLocalAddr()->toString().c_str());
 
       channel->getTcpClient()->readMessage(req_protocol->m_msg_id, [channel, my_controller](AbstractProtocol::s_ptr msg) mutable {
-  
-   std::shared_ptr<rocket::TinyPBProtocol> rsp_protocol = std::dynamic_pointer_cast<rocket::TinyPBProtocol>(msg);
+        std::shared_ptr<rocket::TinyPBProtocol> rsp_protocol = std::dynamic_pointer_cast<rocket::TinyPBProtocol>(msg);
         INFOLOG("%s | success get rpc response, call method name[%s], peer addr[%s], local addr[%s]", 
           rsp_protocol->m_msg_id.c_str(), rsp_protocol->m_method_name.c_str(),
           channel->getTcpClient()->getPeerAddr()->toString().c_str(), 
@@ -139,7 +152,7 @@ void RpcChannel::Init(controller_s_ptr controller, message_s_ptr req, message_s_
 google::protobuf::RpcController* RpcChannel::getController() {
   return m_controller.get();
 }
-
+  
 google::protobuf::Message* RpcChannel::getRequest() {
   return m_request.get();
 }
