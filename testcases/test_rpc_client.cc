@@ -68,7 +68,7 @@ void test_tcp_client() {
 void test_rpc_channel() {
   
 
-  NEWRPCCHANNEL("127.0.0.1:12346", channel);
+  NEWRPCCHANNEL("127.0.0.1:12345", channel);
 
   // std::shared_ptr<makeOrderRequest> request = std::make_shared<makeOrderRequest>();
 
@@ -97,19 +97,19 @@ void test_rpc_channel() {
       }
     
       INFOLOG("now exit eventloop");
-      channel->getTcpClient()->stop();
+      //channel->getTcpClient()->stop();
       channel.reset();
     });
 
-   CALLRPRC("127.0.0.1:12346", makeOrder, controller, request, response, closure);
+   CALLRPRC("127.0.0.1:12345", makeOrder, controller, request, response, closure);
 
 }
 
 int main() {
 
-  rocket::Config::SetGlobalConfig("../conf/rocket.xml");
+  rocket::Config::SetGlobalConfig(NULL);
 
-  rocket::Logger::InitGlobalLogger();
+  rocket::Logger::InitGlobalLogger(0);
 
   //test_tcp_client();
   test_rpc_channel();

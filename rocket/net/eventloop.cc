@@ -156,7 +156,6 @@ static int g_epoll_max_events = 10;
             addTask(fd_event->handler(Fdevent::OUT_EVENT));
             }
 
-            // EPOLLHUP EPOLLHUP
             if (trigger_event.events & EPOLLHUP) {
             DEBUGLOG("fd %d trigger EPOLLHUPOR event", fd_event->getFd())
             // 删除出错的套接字

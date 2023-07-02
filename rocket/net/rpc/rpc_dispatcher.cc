@@ -9,6 +9,7 @@
 #include "rocket/net/rpc/rpc_controller.h"
 #include "rocket/net/tcp/addr.h"
 #include "rocket/net/tcp/tcp_connection.h"
+#include "rocket/common/run_time.h"
 
 namespace rocket {
 
@@ -79,6 +80,8 @@ void RpcDispatcher::dispatch(AbstractProtocol::s_ptr request, AbstractProtocol::
   rpcController.SetPeerAddr(connection->getPeerAddr());
   rpcController.SetMsgId(req_protocol->m_msg_id);
 
+  Runtime::GetRunTime()->m_msgid = req_protocol->m_msg_id;
+  Runtime::GetRunTime()->m_method_name = method_name;
   service->CallMethod(method, &rpcController, req_msg, rsp_msg, NULL);
 
   if (!rsp_msg->SerializeToString(&(rsp_protocol->m_pb_data))) {
