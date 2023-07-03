@@ -14,7 +14,7 @@
 #include "rocket/common/config.h"
 #include "rocket/common/log.h"
 #include "rocket/net/tcp/tcp_client.h"
-#include "rocket/net/tcp/addr.h"
+#include "rocket/net/tcp/net_addr.h"
 #include "rocket/net/coder/string_coder.h"
 #include "rocket/net/coder/abstract_protocol.h"
 #include "rocket/net/coder/tiny_pb_coder.h"
@@ -101,8 +101,9 @@ void test_rpc_channel() {
       channel.reset();
     });
 
-   CALLRPRC("127.0.0.1:12345", makeOrder, controller, request, response, closure);
 
+    CALLRPRC("127.0.0.1:12346", Order_Stub, makeOrder, controller, request, response, closure);
+    
 }
 
 int main() {

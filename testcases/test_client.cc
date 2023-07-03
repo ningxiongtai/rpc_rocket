@@ -11,7 +11,7 @@
 #include "rocket/common/log.h"
 #include "rocket/common/config.h"
 #include "rocket/net/tcp/tcp_client.h"
-#include "rocket/net/tcp/addr.h"
+#include "rocket/net/tcp/net_addr.h"
 #include "rocket/net/coder/tiny_pb_coder.h"
 #include "rocket/net/coder/tiny_pb_protocol.h"
 void test_connect() {

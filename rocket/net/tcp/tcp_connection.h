@@ -2,7 +2,7 @@
 #define ROCKET_NET_TCP_TCP_CONNECTION_H
 #include <map>
 #include <memory>
-#include "rocket/net/tcp/addr.h"
+#include "rocket/net/tcp/net_addr.h"
 #include "rocket/net/tcp/tcp_buffer.h"
 #include "rocket/net/io_thread.h"
 #include "rocket/net/coder/abstract_coder.h"
